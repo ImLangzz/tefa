@@ -1,0 +1,71 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Product extends Model
+{
+    use HasFactory;
+
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+            'quantity' => 'integer',
+        ];
+    }
+
+    protected $fillable = [
+        'user_id',
+        'category_id',
+        'name',
+        'description',
+        'price',
+        'quantity',
+        'image',
+        'is_active',
+    ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    public function reports(): HasMany
+    {
+        return $this->hasMany(ProductReport::class);
+    }
+
+    public function getAverageRatingAttribute(): ?float
+    {
+        return $this->ratings()->avg('stars');
+    }
+
+    public function getPriceFormattedAttribute()
+    {
+        return 'Rp '.number_format($this->price, 0, ',', '.');
+    }
+
+    public function getImageUrlAttribute()
+    {
+        if ($this->image) {
+            return asset('storage/'.$this->image);
+        }
+
+        return asset('images/no-image.png');
+    }
+}
