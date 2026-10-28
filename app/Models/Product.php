@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -54,10 +55,14 @@ class Product extends Model
         return $this->ratings()->avg('stars');
     }
 
-    public function getImageUrlAttribute()
+    public function getImageUrlAttribute(): string
     {
         if ($this->image) {
-            return asset('storage/'.$this->image);
+            if (config('filesystems.disks.public.driver') === 'local') {
+                return asset('storage/'.$this->image);
+            }
+
+            return Storage::disk('public')->url($this->image);
         }
 
         return asset('images/no-image.png');

@@ -33,7 +33,7 @@
             <article class="admin-product-row">
                 <div class="admin-product-thumb">
                     @if($product->image)
-                        <img src="{{ asset('storage/'.$product->image) }}" alt="">
+                        <img src="{{ $product->image_url }}" alt="">
                     @else
                         <span>📦</span>
                     @endif

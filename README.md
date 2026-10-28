@@ -52,6 +52,76 @@ php artisan db:seed --class=AdminSeeder
 Akun admin akan dibuat atau diperbarui dengan nilai tersebut. Jangan gunakan kata
 sandi contoh di lingkungan produksi. Sesi login menggunakan driver pada `SESSION_DRIVER`.
 
+## Deploy ke Vercel
+
+Project Laravel ini menggunakan Dockerfile dan Vercel Container Runtime (saat ini
+berstatus beta). Tampilan tetap berasal dari Blade dan asset Vite yang sama. Vercel
+menjalankan container secara stateless, jadi database dan gambar yang diunggah harus
+disimpan di layanan eksternal.
+
+1. Pastikan perubahan project sudah di-push ke GitHub. Jangan commit `.env`.
+2. Di Vercel, pilih **Add New → Project**, lalu import repository GitHub.
+   Biarkan Root Directory di root repository. `vercel.json` memilih preset Container;
+   jika diminta, pilih **Container** sebagai Framework Preset.
+3. Siapkan PostgreSQL eksternal dan bucket penyimpanan S3-compatible, misalnya
+   Cloudflare R2. Pastikan Vercel Container Runtime tersedia untuk akun/project Anda.
+4. Di **Project → Settings → Environment Variables**, tambahkan:
+
+   | Variable | Isi |
+   | --- | --- |
+   | `APP_ENV` | `production` |
+   | `APP_DEBUG` | `false` |
+   | `APP_KEY` | Key production baru dari `php artisan key:generate --show` |
+   | `APP_URL` | URL deployment Vercel, misalnya `https://nama-project.vercel.app` |
+   | `LOG_CHANNEL` | `stderr` |
+   | `DB_CONNECTION` | `pgsql` |
+   | `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | Nilai koneksi dari penyedia PostgreSQL |
+   | `SESSION_DRIVER` | `database` |
+   | `SESSION_SECURE_COOKIE` | `true` |
+   | `CACHE_STORE` | `database` |
+   | `QUEUE_CONNECTION` | `sync` |
+   | `PUBLIC_FILESYSTEM_DISK` | `s3` |
+   | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_BUCKET` | Kredensial dan nama bucket |
+   | `AWS_DEFAULT_REGION`, `AWS_ENDPOINT`, `AWS_URL` | Region, endpoint API, dan URL publik untuk gambar |
+   | `AWS_USE_PATH_STYLE_ENDPOINT` | `true` jika diwajibkan penyedia object storage |
+
+   Untuk bucket privat, atur akses publik/CDN dengan benar atau gunakan URL gambar
+   yang dapat diakses browser. Jangan menggunakan nilai contoh sebagai kredensial.
+5. Deploy project. Build membuat asset frontend, menginstal dependensi Laravel, lalu
+   Apache melayani aplikasi melalui folder `public/`.
+6. Sebelum aplikasi digunakan, jalankan migrasi ke PostgreSQL production. Di terminal
+   pada folder project, pasang dan hubungkan Vercel CLI satu kali:
+
+   ```sh
+   composer install
+   npm install --global vercel
+   vercel login
+   vercel link
+   ```
+
+   Setelah Vercel meminta konfirmasi project, pilih project yang baru dibuat. Lalu
+   jalankan migrasi dan seeder dengan Environment Variables production dari Vercel:
+
+   ```sh
+   vercel env run -e production -- php artisan migrate --force
+   vercel env run -e production -- php artisan db:seed --class=AdminSeeder
+   ```
+
+   `vercel env run` menjalankan perintah dengan variables Vercel tanpa menulis secret
+   ke file. Atur `ADMIN_EMAIL`, `ADMIN_PASSWORD`, dan opsional `ADMIN_NAME` di Vercel
+   sebelum menjalankan seeder.
+
+   Pada Windows dengan XAMPP, PHP lokal juga perlu ekstensi `pdo_pgsql` untuk
+   menjalankan migrasi. Jika `php -m` belum menampilkan `pdo_pgsql`, buka
+   `C:\xampp\php\php.ini`, hapus tanda `;` di depan `extension=pdo_pgsql`, simpan,
+   lalu buka ulang terminal. Pastikan aktif dengan `php -m | findstr pdo_pgsql`.
+7. Deploy ulang setelah mengubah Environment Variables. Buka URL deployment dan tes
+   pendaftaran, login, katalog, serta upload gambar.
+
+`database/database.sqlite` dan penyimpanan lokal tidak digunakan sebagai penyimpanan
+production karena perubahan file pada container Vercel tidak permanen. Jangan gunakan
+APP_KEY atau password admin lokal untuk production; buat nilai production baru.
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.

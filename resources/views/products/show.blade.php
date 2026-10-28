@@ -11,7 +11,7 @@
                 <!-- Gambar -->
                 <div class="detail-img-side">
                     @if($product->image)
-                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="detail-img">
+                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="detail-img">
                     @else
                         <div class="detail-img-placeholder">
                             <span>📦</span>
@@ -95,7 +95,7 @@
                             <a href="{{ route('products.show', $rel) }}" class="product-card">
                                 <div class="product-img-wrap">
                                     @if($rel->image)
-                                        <img src="{{ asset('storage/' . $rel->image) }}" alt="{{ $rel->name }}" class="product-img">
+                                        <img src="{{ $rel->image_url }}" alt="{{ $rel->name }}" class="product-img">
                                     @else
                                         <div class="product-img-placeholder"><span>📦</span></div>
                                     @endif

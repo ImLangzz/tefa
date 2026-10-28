@@ -44,7 +44,7 @@
                         <article class="product-card">
                             <a class="product-img-wrap" href="{{ route('products.show', $product) }}" aria-label="Lihat {{ $product->name }}">
                                 @if($product->image)
-                                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="product-img">
+                                    <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="product-img">
                                 @else
                                     <div class="product-img-placeholder">
                                         <span>📦</span>
