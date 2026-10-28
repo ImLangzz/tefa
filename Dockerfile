@@ -19,7 +19,7 @@ RUN apt-get update \
         libxml2-dev \
         libzip-dev \
         unzip \
-    && docker-php-ext-install -j"$(nproc)" mbstring opcache pdo_pgsql xml zip \
+    && docker-php-ext-install -j"$(nproc)" opcache pdo_pgsql xml zip \
     && a2enmod rewrite headers \
     && rm -rf /var/lib/apt/lists/*
 
