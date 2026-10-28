@@ -38,8 +38,6 @@ class HomeController extends Controller
         }
 
         match ($request->input('sort')) {
-            'price_low' => $query->orderBy('price'),
-            'price_high' => $query->orderByDesc('price'),
             'rating' => $query->orderByDesc('ratings_avg_stars'),
             default => $query->latest(),
         };

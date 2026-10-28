@@ -113,14 +113,19 @@ class AuthenticationTest extends TestCase
         $this->actingAs($buyer)->post(route('products.store'), [
             'name' => 'Barang dari Anggota',
             'description' => 'Anggota dapat menjual dan membeli.',
-            'price' => 5000,
-            'quantity' => 2,
+            'business_name' => 'Mie Ayam Bu Rina',
+            'location_address' => 'Jalan Melati 10, Bandung',
             'category_id' => $buyerCategory->id,
         ])->assertRedirect(route('products.index'));
         $this->assertSame(
             $buyer->id,
             Product::where('name', 'Barang dari Anggota')->value('user_id')
         );
+        $this->assertDatabaseHas('products', [
+            'name' => 'Barang dari Anggota',
+            'business_name' => 'Mie Ayam Bu Rina',
+            'location_address' => 'Jalan Melati 10, Bandung',
+        ]);
 
         foreach ([User::ROLE_PENJUAL, User::ROLE_PEMBELI] as $role) {
             $user = User::factory()->create(['role' => $role]);
@@ -135,8 +140,8 @@ class AuthenticationTest extends TestCase
             $this->actingAs($user)->post(route('products.store'), [
                 'name' => 'Produk '.$role,
                 'description' => 'Deskripsi produk untuk pengujian.',
-                'price' => 10000,
-                'quantity' => 4,
+                'business_name' => 'Usaha '.$role,
+                'location_address' => 'Jalan Mawar 5, Bandung',
                 'category_id' => $category->id,
             ])->assertRedirect(route('products.index'));
 
@@ -160,14 +165,12 @@ class AuthenticationTest extends TestCase
                 'category_id' => $category->id,
                 'name' => 'Barang katalog '.$number,
                 'description' => 'Barang untuk beranda anggota.',
-                'price' => 10000,
-                'quantity' => 3,
             ]);
         }
 
         $this->actingAs($member)->get(route('home'))
             ->assertOk()
-            ->assertSee('Semua Produk')
+            ->assertSee('Promosi Usaha TEFA')
             ->assertSee('Barang katalog 1')
             ->assertSee('Barang katalog 8')
             ->assertDontSee('Produk Unggulan');
@@ -183,15 +186,11 @@ class AuthenticationTest extends TestCase
             'category_id' => $food->id,
             'name' => 'Brownies Coklat',
             'description' => 'Kue coklat buatan TEFA.',
-            'price' => 15000,
-            'quantity' => 4,
         ]);
         $member->products()->create([
             'category_id' => $craft->id,
             'name' => 'Tas Rajut',
             'description' => 'Tas buatan tangan.',
-            'price' => 50000,
-            'quantity' => 2,
         ]);
 
         $this->actingAs($member)->get(route('home', ['search' => 'Brownies']))
@@ -220,13 +219,11 @@ class AuthenticationTest extends TestCase
                     'category_id' => $category->id,
                     'name' => 'Produk A '.$seller->id,
                     'description' => 'Produk pertama.',
-                    'price' => 10000,
                 ],
                 [
                     'category_id' => $category->id,
                     'name' => 'Produk B '.$seller->id,
                     'description' => 'Produk kedua.',
-                    'price' => 20000,
                 ],
             ]);
         }

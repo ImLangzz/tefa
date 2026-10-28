@@ -5,6 +5,7 @@
 @section('content')
     <div class="section">
         <div class="container">
+            <a href="{{ route('home') }}" class="back-link">← Kembali ke Beranda</a>
             <h1 class="page-title">Katalog Produk</h1>
 
             <!-- Filter & Search -->
@@ -40,8 +41,8 @@
                 <p class="result-count">Menampilkan {{ $products->total() }} produk</p>
                 <div class="product-grid">
                     @foreach($products as $product)
-                        <a href="{{ route('products.show', $product) }}" class="product-card">
-                            <div class="product-img-wrap">
+                        <article class="product-card">
+                            <a class="product-img-wrap" href="{{ route('products.show', $product) }}" aria-label="Lihat {{ $product->name }}">
                                 @if($product->image)
                                     <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="product-img">
                                 @else
@@ -49,19 +50,26 @@
                                         <span>📦</span>
                                     </div>
                                 @endif
-                                <span class="product-badge">{{ $product->category->name }}</span>
-                            </div>
+                            </a>
                             <div class="product-info">
-                                <h3 class="product-name">{{ $product->name }}</h3>
-                                <p class="product-desc">{{ Str::limit($product->description, 60) }}</p>
-                                <p class="product-price">{{ $product->price_formatted }}</p>
-                                <p class="product-meta">
-                                    ⭐ {{ $product->ratings_avg_stars ? number_format($product->ratings_avg_stars, 1) : 'Belum ada rating' }}
-                                    · {{ $product->quantity > 0 ? 'Stok '.$product->quantity : 'Stok habis / belum diatur' }}
-                                </p>
-                                <p class="product-meta">Oleh {{ $product->user?->name ?? 'Contoh katalog TEFA' }}</p>
+                                <h3 class="product-name">
+                                    <a class="product-detail-link" href="{{ route('products.show', $product) }}">{{ $product->name }}</a>
+                                </h3>
+                                <p class="product-meta"><strong>Nama usaha:</strong> {{ $product->business_name ?: ($product->user?->name ?? 'Contoh katalog TEFA') }}</p>
+                                <p class="product-meta"><strong>Bidang:</strong> {{ $product->category->name }}</p>
+                                <a class="product-detail-link" href="{{ route('products.show', $product) }}">Lihat promosi</a>
+                                @if($product->location_address)
+                                    <div class="product-address">
+                                        <strong>Alamat:</strong>
+                                        <p>📍 {{ $product->location_address }}</p>
+                                    </div>
+                                    <a class="btn btn-outline product-map-action" target="_blank" rel="noopener noreferrer"
+                                        href="https://www.google.com/maps/dir/?api=1&amp;destination={{ urlencode($product->location_address) }}">
+                                        Lihat rute di Google Maps
+                                    </a>
+                                @endif
                             </div>
-                        </a>
+                        </article>
                     @endforeach
                 </div>
 

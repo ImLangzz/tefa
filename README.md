@@ -27,12 +27,14 @@ Pengunjung dapat membuat akun anggota melalui `/register`. Semua anggota memilik
 yang sama: satu akun dapat membeli dan menjual. Hanya **admin** yang memiliki akses
 moderasi; pendaftaran admin publik tidak tersedia.
 
-Anggota dapat mengunggah produk dengan nama, kategori, harga, jumlah stok, deskripsi,
-tanpa perlu mencantumkan nomor WhatsApp. Anggota dapat memulai chat langsung dengan
-penjual dari halaman produk. Tombol **Pesan Barang** membuat pesanan tertunda sekaligus
-membuka percakapan dengan penjual; pesan dan balasan tersedia di menu **Chat**.
-Penjual mengonfirmasi pesanan selesai melalui menu **Pesanan**; stok dikurangi saat
-konfirmasi dan pembeli baru dapat memberi satu rating untuk pesanan yang selesai.
+Anggota dapat mengunggah promosi usaha dengan nama, kategori, deskripsi, dan alamat,
+tanpa perlu mencantumkan harga, stok, koordinat GPS, atau nomor WhatsApp. Katalog TEFA hanya berfungsi
+sebagai media promosi dan penunjuk lokasi. Tidak ada fitur pesanan, pembelian, ataupun
+chat dalam aplikasi; pengunjung menghubungi penjual secara langsung di luar aplikasi.
+Ulasan yang sudah ada tetap ditampilkan sebagai informasi produk.
+
+Setiap promosi dapat mencantumkan alamat tempat usaha. Tautan Google Maps mencari
+alamat tersebut; aplikasi tidak mengambil koordinat GPS atau melacak lokasi pembeli.
 
 Anggota dapat melaporkan produk yang diduga melanggar aturan. Admin meninjau laporan di
 menu **Moderasi**, menonaktifkan barang, mem-blacklist penjual (semua produknya
@@ -49,24 +51,6 @@ php artisan db:seed --class=AdminSeeder
 
 Akun admin akan dibuat atau diperbarui dengan nilai tersebut. Jangan gunakan kata
 sandi contoh di lingkungan produksi. Sesi login menggunakan driver pada `SESSION_DRIVER`.
-
-## Deploy ke Vercel
-
-Proyek memakai runtime Container Vercel melalui `Dockerfile.vercel`. Runtime Container
-Vercel masih berstatus beta. Deployment produksi memerlukan database MySQL atau
-PostgreSQL eksternal; jangan memakai SQLite di filesystem deployment. Atur variabel
-`DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, dan `DB_PASSWORD`
-di Vercel, lalu jalankan migrasi produksi satu kali dengan `php artisan migrate --force`.
-
-Tambahkan `APP_KEY` (buat lokal dengan `php artisan key:generate --show`), `APP_URL`,
-dan `APP_DEBUG=false` sebagai Environment Variables di Vercel. Jangan commit atau
-mengunggah `.env`. Biarkan sesi dan cache memakai database, sebagaimana nilai default
-di `Dockerfile.vercel`.
-
-Filesystem container tidak boleh dianggap penyimpanan permanen. Sebelum mengaktifkan
-unggah gambar produk, konfigurasi object storage eksternal yang kompatibel dengan S3;
-disk publik lokal saat ini hanya cocok untuk pengembangan lokal. Data admin juga harus
-dibuat di database produksi setelah migrasi selesai, bukan disalin dari database lokal.
 
 ## Learning Laravel
 

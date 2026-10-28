@@ -5,6 +5,7 @@
 
 @section('content')
     <section class="admin-panel-card">
+        <a href="{{ route('admin.dashboard') }}" class="back-link">← Kembali ke Ringkasan Admin</a>
         <div class="admin-section-heading">
             <div>
                 <span class="admin-eyebrow">KONTROL KATALOG</span>
@@ -46,10 +47,11 @@
                     </div>
                     <p>{{ Str::limit($product->description, 140) }}</p>
                     <div class="admin-product-meta">
-                        <span>{{ $product->user?->name ?? 'Pemilik tidak diketahui' }}</span>
+                        <span>{{ $product->business_name ?: ($product->user?->name ?? 'Pemilik tidak diketahui') }}</span>
+                        @if($product->location_address)
+                            <span>📍 {{ $product->location_address }}</span>
+                        @endif
                         <span>{{ $product->category?->name ?? 'Tanpa kategori' }}</span>
-                        <strong>{{ $product->price_formatted }}</strong>
-                        <span>{{ $product->quantity }} stok</span>
                         <span>{{ $product->reports_count }} laporan</span>
                     </div>
                 </div>

@@ -5,6 +5,7 @@
 @section('content')
     <div class="section">
         <div class="container">
+            <a href="{{ route('admin.dashboard') }}" class="back-link">← Kembali ke Ringkasan Admin</a>
             <h1 class="page-title">Laporan Produk</h1>
             @forelse($reports as $report)
                 <article class="order-card">
@@ -15,7 +16,6 @@
                         <p>Alasan: {{ $report->reason }}</p>
                         <p>Tentang produk: {{ $report->product->description }}</p>
                         <p>Kategori: {{ $report->product->category->name ?? 'Tidak ada kategori' }}</p>
-                        <p>Harga: {{ $report->product->price_formatted }}</p>
                     </div>
                     <div class="moderation-actions">
                         <form action="{{ route('admin.reports.deactivate', $report) }}" method="POST">

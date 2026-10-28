@@ -68,16 +68,6 @@ class User extends Authenticatable
         return $this->hasMany(Product::class);
     }
 
-    public function sales(): HasMany
-    {
-        return $this->hasMany(Order::class, 'seller_id');
-    }
-
-    public function purchases(): HasMany
-    {
-        return $this->hasMany(Order::class, 'buyer_id');
-    }
-
     public function isMember(): bool
     {
         return in_array($this->role, [self::ROLE_PENJUAL, self::ROLE_PEMBELI]);

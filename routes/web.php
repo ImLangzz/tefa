@@ -1,12 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ModerationController;
-use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
-use App\Http\Controllers\RatingController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -26,15 +23,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/katalog/tambah', [ProductController::class, 'create'])->name('products.create');
         Route::post('/katalog/tambah', [ProductController::class, 'store'])->name('products.store');
         Route::get('/katalog/{product}', [ProductController::class, 'show'])->name('products.show');
-        Route::post('/produk/{product}/pesan', [OrderController::class, 'store'])->name('orders.store');
-        Route::get('/chat', [ConversationController::class, 'index'])->name('conversations.index');
-        Route::post('/produk/{product}/chat', [ConversationController::class, 'start'])->name('conversations.start');
-        Route::get('/chat/{conversation}', [ConversationController::class, 'show'])->name('conversations.show');
-        Route::post('/chat/{conversation}', [ConversationController::class, 'send'])->name('conversations.send');
-        Route::get('/pesanan', [OrderController::class, 'index'])->name('orders.index');
-        Route::post('/pesanan/{order}/selesai', [OrderController::class, 'complete'])->name('orders.complete');
-        Route::post('/pesanan/{order}/batal', [OrderController::class, 'cancel'])->name('orders.cancel');
-        Route::post('/pesanan/{order}/rating', [RatingController::class, 'store'])->name('ratings.store');
         Route::post('/produk/{product}/laporkan', [ModerationController::class, 'report'])->name('products.report');
     });
 

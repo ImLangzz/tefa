@@ -15,7 +15,6 @@ class Product extends Model
     {
         return [
             'is_active' => 'boolean',
-            'quantity' => 'integer',
         ];
     }
 
@@ -24,8 +23,8 @@ class Product extends Model
         'category_id',
         'name',
         'description',
-        'price',
-        'quantity',
+        'business_name',
+        'location_address',
         'image',
         'is_active',
     ];
@@ -53,11 +52,6 @@ class Product extends Model
     public function getAverageRatingAttribute(): ?float
     {
         return $this->ratings()->avg('stars');
-    }
-
-    public function getPriceFormattedAttribute()
-    {
-        return 'Rp '.number_format($this->price, 0, ',', '.');
     }
 
     public function getImageUrlAttribute()

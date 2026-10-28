@@ -5,12 +5,12 @@
 @section('content')
     <div class="section">
         <div class="container">
-            <h1 class="page-title">Semua Produk</h1>
-            <p class="form-hint">Selamat datang, {{ auth()->user()->name }}. Jelajahi produk komunitas TEFA atau jual produk Anda.</p>
+            <h1 class="page-title">Promosi Usaha TEFA</h1>
+            <p class="form-hint">Selamat datang, {{ auth()->user()->name }}. Temukan produk dan lokasi usaha komunitas TEFA, atau promosikan usaha Anda.</p>
 
             <div class="hero-actions">
-                <a href="{{ route('products.create') }}" class="btn btn-primary">+ Jual Produk</a>
-                <a href="{{ route('orders.index') }}" class="btn btn-outline">Pesanan Saya</a>
+                <a href="{{ route('products.create') }}" class="btn btn-primary">Promosikan Usaha</a>
+                <a href="{{ route('products.index') }}" class="btn btn-outline">Jelajahi Katalog</a>
             </div>
 
             <form action="{{ route('home') }}" method="GET" class="filter-bar">
@@ -24,14 +24,8 @@
                         </option>
                     @endforeach
                 </select>
-                <select name="sort" class="filter-select">
-                    <option value="latest" {{ request('sort', 'latest') === 'latest' ? 'selected' : '' }}>Terbaru</option>
-                    <option value="price_low" {{ request('sort') === 'price_low' ? 'selected' : '' }}>Harga terendah</option>
-                    <option value="price_high" {{ request('sort') === 'price_high' ? 'selected' : '' }}>Harga tertinggi</option>
-                    <option value="rating" {{ request('sort') === 'rating' ? 'selected' : '' }}>Rating tertinggi</option>
-                </select>
                 <button type="submit" class="btn btn-primary">Cari</button>
-                @if(request('search') || (request('category') && request('category') !== 'all') || request('sort'))
+                @if(request('search') || (request('category') && request('category') !== 'all'))
                     <a href="{{ route('home') }}" class="btn btn-outline">Reset</a>
                 @endif
             </form>
@@ -50,26 +44,33 @@
                 <p class="result-count">Menampilkan {{ $products->total() }} dari {{ $productCount }} produk</p>
                 <div class="product-grid">
                     @foreach($products as $product)
-                        <a href="{{ route('products.show', $product) }}" class="product-card">
-                            <div class="product-img-wrap">
+                        <article class="product-card">
+                            <a class="product-img-wrap" href="{{ route('products.show', $product) }}" aria-label="Lihat {{ $product->name }}">
                                 @if($product->image)
                                     <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="product-img">
                                 @else
                                     <div class="product-img-placeholder"><span>📦</span></div>
                                 @endif
-                                <span class="product-badge">{{ $product->category->name }}</span>
-                            </div>
+                            </a>
                             <div class="product-info">
-                                <h2 class="product-name">{{ $product->name }}</h2>
-                                <p class="product-desc">{{ Str::limit($product->description, 60) }}</p>
-                                <p class="product-price">{{ $product->price_formatted }}</p>
-                                <p class="product-meta">
-                                    ⭐ {{ $product->ratings_avg_stars ? number_format($product->ratings_avg_stars, 1) : 'Belum ada rating' }}
-                                    · Stok {{ $product->quantity }}
-                                </p>
-                                <p class="product-meta">Oleh {{ $product->user?->name ?? 'Katalog TEFA' }}</p>
+                                <h2 class="product-name">
+                                    <a class="product-detail-link" href="{{ route('products.show', $product) }}">{{ $product->name }}</a>
+                                </h2>
+                                <p class="product-meta"><strong>Nama usaha:</strong> {{ $product->business_name ?: ($product->user?->name ?? 'Katalog TEFA') }}</p>
+                                <p class="product-meta"><strong>Bidang:</strong> {{ $product->category->name }}</p>
+                                <a class="product-detail-link" href="{{ route('products.show', $product) }}">Lihat promosi</a>
+                                @if($product->location_address)
+                                    <div class="product-address">
+                                        <strong>Alamat:</strong>
+                                        <p>📍 {{ $product->location_address }}</p>
+                                    </div>
+                                    <a class="btn btn-outline product-map-action" target="_blank" rel="noopener noreferrer"
+                                        href="https://www.google.com/maps/dir/?api=1&amp;destination={{ urlencode($product->location_address) }}">
+                                        Lihat rute di Google Maps
+                                    </a>
+                                @endif
                             </div>
-                        </a>
+                        </article>
                     @endforeach
                 </div>
                 <div class="pagination-wrap">{{ $products->links() }}</div>

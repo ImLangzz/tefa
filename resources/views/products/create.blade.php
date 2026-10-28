@@ -61,28 +61,29 @@
                     @enderror
                 </div>
 
-                <!-- Harga -->
                 <div class="form-group">
-                    <label for="price" class="form-label">Harga (Rp) <span class="required">*</span></label>
-                    <div class="input-prefix-wrap">
-                        <span class="input-prefix">Rp</span>
-                        <input type="number" id="price" name="price" value="{{ old('price') }}" placeholder="Contoh: 25000"
-                            min="0" class="form-input input-with-prefix {{ $errors->has('price') ? 'input-error' : '' }}"
-                            required>
-                    </div>
-                    @error('price')
+                    <label for="business_name" class="form-label">Nama Usaha <span class="required">*</span></label>
+                    <input id="business_name" name="business_name" type="text" maxlength="150"
+                        value="{{ old('business_name') }}" placeholder="Contoh: Mie Ayam Pak Budi"
+                        class="form-input" required>
+                    @error('business_name')
                         <p class="error-msg">{{ $message }}</p>
                     @enderror
                 </div>
 
-                <div class="form-group">
-                    <label for="quantity" class="form-label">Jumlah Stok <span class="required">*</span></label>
-                    <input type="number" id="quantity" name="quantity" value="{{ old('quantity', 1) }}"
-                        min="1" class="form-input" required>
-                    @error('quantity')
-                        <p class="error-msg">{{ $message }}</p>
-                    @enderror
-                </div>
+                <fieldset class="location-fieldset">
+                    <legend>Lokasi Tempat Jualan</legend>
+                    <p class="form-hint">Alamat akan ditampilkan pada promosi dan dapat dibuka di Google Maps.</p>
+                    <div class="form-group">
+                        <label for="location_address" class="form-label">Alamat lengkap <span class="required">*</span></label>
+                        <textarea id="location_address" name="location_address" rows="3" maxlength="500"
+                            placeholder="Contoh: Jl. Melati No. 10, dekat gerbang sekolah"
+                            class="form-input form-textarea" required>{{ old('location_address') }}</textarea>
+                        @error('location_address')
+                            <p class="error-msg">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </fieldset>
 
                 <!-- Gambar Produk -->
                 <div class="form-group">

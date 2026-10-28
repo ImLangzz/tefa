@@ -3,8 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
-use App\Models\Conversation;
-use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductReport;
 use App\Models\User;
@@ -15,83 +13,96 @@ class MarketplaceTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_member_can_order_through_chat_and_rate_after_seller_confirms(): void
+    public function test_product_page_shows_promotion_and_location_without_chat_or_order_actions(): void
     {
         $seller = User::factory()->create(['role' => User::ROLE_PENJUAL]);
         $buyer = User::factory()->create(['role' => User::ROLE_PEMBELI]);
-        $outsider = User::factory()->create(['role' => User::ROLE_PEMBELI]);
-        $product = $this->createProduct($seller, [
-            'name' => 'Tas TEFA',
-            'quantity' => 5,
-        ]);
-
-        $response = $this->actingAs($buyer)->post(route('orders.store', $product), [
-            'quantity' => 2,
-        ]);
-
-        $conversation = Conversation::firstOrFail();
-        $response->assertRedirect(route('conversations.show', $conversation));
-
-        $order = Order::firstOrFail();
-        $this->assertSame(Order::STATUS_PENDING, $order->status);
-        $this->assertSame($buyer->id, $order->buyer_id);
-        $this->assertSame($seller->id, $order->seller_id);
-        $this->assertSame(20000.0, (float) $order->total_price);
-        $this->assertSame($conversation->id, $order->conversation_id);
-        $this->assertSame(5, $product->fresh()->quantity);
-        $this->assertDatabaseHas('messages', [
-            'conversation_id' => $conversation->id,
-            'sender_id' => $buyer->id,
-            'body' => "Saya ingin memesan Tas TEFA sebanyak 2. Nomor pesanan: #{$order->id}.",
-        ]);
-
-        $this->actingAs($seller)->post(route('conversations.send', $conversation), [
-            'body' => 'Pesanan akan segera diproses.',
-        ])->assertRedirect(route('conversations.show', $conversation));
-        $this->actingAs($buyer)->get(route('conversations.show', $conversation))
-            ->assertOk()
-            ->assertSee('Pesanan akan segera diproses.');
-        $this->actingAs($outsider)->get(route('conversations.show', $conversation))
-            ->assertForbidden();
-
-        $this->actingAs($buyer)->post(route('ratings.store', $order), [
-            'stars' => 5,
-            'comment' => 'Barang bagus.',
-        ])->assertForbidden();
-
-        $this->actingAs($seller)->post(route('orders.complete', $order))
-            ->assertSessionHas('success');
-
-        $this->assertSame(Order::STATUS_COMPLETED, $order->fresh()->status);
-        $this->assertSame(3, $product->fresh()->quantity);
-
-        $this->actingAs($buyer)->post(route('ratings.store', $order), [
-            'stars' => 5,
-            'comment' => 'Barang bagus.',
-        ])->assertRedirect();
-
-        $this->assertDatabaseHas('ratings', [
-            'order_id' => $order->id,
-            'product_id' => $product->id,
-            'buyer_id' => $buyer->id,
-            'stars' => 5,
-        ]);
-
-        $this->actingAs($buyer)->post(route('ratings.store', $order), [
-            'stars' => 4,
-        ])->assertStatus(409);
-    }
-
-    public function test_product_page_shows_chat_and_order_actions_for_available_seller_products(): void
-    {
-        $seller = User::factory()->create(['role' => User::ROLE_PENJUAL]);
-        $buyer = User::factory()->create(['role' => User::ROLE_PEMBELI]);
-        $product = $this->createProduct($seller, ['name' => 'Produk untuk dipesan']);
+        $product = $this->createProduct($seller, ['name' => 'Produk untuk dipromosikan']);
 
         $this->actingAs($buyer)->get(route('products.show', $product))
             ->assertOk()
-            ->assertSee('Chat Penjual')
-            ->assertSee('Pesan Barang');
+            ->assertDontSee('Hubungi Penjual')
+            ->assertDontSee('Chat')
+            ->assertDontSee('Pesan Barang')
+            ->assertDontSee('Pesanan Saya')
+            ->assertSee('Usaha TEFA')
+            ->assertSee('Lokasi Tempat Jualan')
+            ->assertSee('https://www.google.com/maps/dir/?api=1&amp;destination=Jalan+Mawar+5%2C+Bandung', false)
+            ->assertSee('📍 Jalan Mawar 5, Bandung')
+            ->assertSee('Lihat rute di Google Maps')
+            ->assertDontSee('Harga')
+            ->assertDontSee('Stok')
+            ->assertDontSee('Latitude')
+            ->assertDontSee('Longitude')
+            ->assertDontSee('6.914744');
+    }
+
+    public function test_catalog_address_links_directly_to_google_maps_directions(): void
+    {
+        $member = User::factory()->create(['role' => User::ROLE_PEMBELI]);
+        $product = $this->createProduct($member);
+
+        $this->actingAs($member)->get(route('home'))
+            ->assertOk()
+            ->assertSee('https://www.google.com/maps/dir/?api=1&amp;destination=Jalan+Mawar+5%2C+Bandung', false)
+            ->assertSee('📍 Jalan Mawar 5, Bandung')
+            ->assertSee('Lihat rute di Google Maps')
+            ->assertSeeInOrder(['Produk TEFA', 'Nama usaha:', 'Usaha TEFA', 'Bidang:', 'Kerajinan', 'Lihat promosi', 'Alamat:']);
+
+        $this->actingAs($member)->get(route('products.index'))
+            ->assertOk()
+            ->assertSee('https://www.google.com/maps/dir/?api=1&amp;destination=Jalan+Mawar+5%2C+Bandung', false)
+            ->assertSee('📍 Jalan Mawar 5, Bandung')
+            ->assertSee('Lihat rute di Google Maps')
+            ->assertSeeInOrder(['Produk TEFA', 'Nama usaha:', 'Usaha TEFA', 'Bidang:', 'Kerajinan', 'Lihat promosi', 'Alamat:']);
+    }
+
+    public function test_product_form_and_schema_only_include_promotion_details(): void
+    {
+        $seller = User::factory()->create(['role' => User::ROLE_PENJUAL]);
+
+        $this->actingAs($seller)->get(route('products.create'))
+            ->assertOk()
+            ->assertSee('Nama Usaha')
+            ->assertSee('Alamat lengkap')
+            ->assertDontSee('Harga')
+            ->assertDontSee('Stok')
+            ->assertDontSee('Latitude')
+            ->assertDontSee('Longitude')
+            ->assertDontSee('GPS');
+
+        $this->assertFalse(\Illuminate\Support\Facades\Schema::hasColumns('products', [
+            'price', 'quantity', 'latitude', 'longitude',
+        ]));
+    }
+
+    public function test_catalog_has_no_chat_or_order_routes_and_no_footer(): void
+    {
+        $member = User::factory()->create(['role' => User::ROLE_PEMBELI]);
+
+        $this->actingAs($member)->get(route('home'))
+            ->assertOk()
+            ->assertSee('Promosi Usaha TEFA')
+            ->assertDontSee('Pesanan Saya')
+            ->assertDontSee('Chat')
+            ->assertDontSee('Teaching Factory')
+            ->assertDontSee('Produk & Jasa Unggulan Siswa SMK');
+
+        $this->assertFalse(
+            app('router')->getRoutes()->hasNamedRoute('orders.index')
+        );
+        $this->assertFalse(
+            app('router')->getRoutes()->hasNamedRoute('orders.store')
+        );
+        $this->assertFalse(
+            app('router')->getRoutes()->hasNamedRoute('ratings.store')
+        );
+        $this->assertFalse(
+            app('router')->getRoutes()->hasNamedRoute('conversations.index')
+        );
+        $this->assertFalse(
+            app('router')->getRoutes()->hasNamedRoute('conversations.start')
+        );
     }
 
     public function test_admin_can_blacklist_seller_after_product_report(): void
@@ -131,9 +142,6 @@ class MarketplaceTest extends TestCase
         $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
         $product = $this->createProduct($seller, ['name' => 'Produk mencurigakan']);
 
-        $this->actingAs($buyer)->post(route('orders.store', $product), [
-            'quantity' => 1,
-        ]);
         $this->actingAs($buyer)->post(route('products.report', $product), [
             'reason' => 'Produk ini harus diperiksa oleh admin.',
         ]);
@@ -148,7 +156,6 @@ class MarketplaceTest extends TestCase
             ->assertSessionHas('success');
 
         $this->assertDatabaseMissing('products', ['id' => $product->id]);
-        $this->assertDatabaseMissing('orders', ['product_id' => $product->id]);
         $this->assertDatabaseMissing('product_reports', ['product_id' => $product->id]);
     }
 
@@ -163,8 +170,8 @@ class MarketplaceTest extends TestCase
             'category_id' => $category->id,
             'name' => 'Produk TEFA',
             'description' => 'Produk buatan TEFA.',
-            'price' => 10000,
-            'quantity' => 5,
+            'business_name' => 'Usaha TEFA',
+            'location_address' => 'Jalan Mawar 5, Bandung',
         ], $attributes));
     }
 }

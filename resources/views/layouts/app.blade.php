@@ -29,15 +29,9 @@
                         <li>
                             <a href="{{ route('products.create') }}"
                                 class="btn-nav {{ request()->routeIs('products.create') ? 'active' : '' }}">
-                                + Tambah Produk
+                                Promosikan Usaha
                             </a>
                         </li>
-                    @endif
-                    @if(auth()->user()->isMember())
-                        <li><a href="{{ route('orders.index') }}">Pesanan</a></li>
-                    @endif
-                    @if(auth()->user()->isMember())
-                        <li><a href="{{ route('conversations.index') }}">Chat</a></li>
                     @endif
                     @if(auth()->user()->isAdmin())
                         <li><a href="{{ route('admin.reports.index') }}">Moderasi</a></li>
@@ -61,13 +55,7 @@
             <a href="{{ route('products.index') }}">Katalog</a>
             @auth
                 @if(auth()->user()->isMember())
-                    <a href="{{ route('products.create') }}">+ Tambah Produk</a>
-                @endif
-                @if(auth()->user()->isMember())
-                    <a href="{{ route('orders.index') }}">Pesanan</a>
-                @endif
-                @if(auth()->user()->isMember())
-                    <a href="{{ route('conversations.index') }}">Chat</a>
+                    <a href="{{ route('products.create') }}">Promosikan Usaha</a>
                 @endif
                 @if(auth()->user()->isAdmin())
                     <a href="{{ route('admin.reports.index') }}">Moderasi</a>
@@ -99,14 +87,6 @@
     <main>
         @yield('content')
     </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container footer-inner">
-            <p><strong>KatalogTEFA</strong> — Teaching Factory</p>
-            <p class="footer-sub">Produk & Jasa Unggulan Siswa SMK</p>
-        </div>
-    </footer>
 
     <script>
         const ham = document.getElementById('hamburger');

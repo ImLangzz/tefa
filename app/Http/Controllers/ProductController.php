@@ -59,14 +59,7 @@ class ProductController extends Controller
             ->take(4)
             ->get();
 
-        $rateableOrder = auth()->user()->purchases()
-            ->where('product_id', $product->id)
-            ->where('status', 'completed')
-            ->whereDoesntHave('rating')
-            ->latest()
-            ->first();
-
-        return view('products.show', compact('product', 'related', 'rateableOrder'));
+        return view('products.show', compact('product', 'related'));
     }
 
     // Form tambah produk
@@ -87,16 +80,15 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:5000',
-            'price' => 'required|numeric|min:0.01',
-            'quantity' => 'required|integer|min:1',
+            'business_name' => 'required|string|max:150',
+            'location_address' => 'required|string|max:500',
             'category_id' => 'required|exists:categories,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
         ], [
             'name.required' => 'Nama produk wajib diisi.',
             'description.required' => 'Tentang produk wajib diisi.',
-            'price.required' => 'Harga wajib diisi.',
-            'price.numeric' => 'Harga harus berupa angka.',
-            'quantity.required' => 'Jumlah stok wajib diisi.',
+            'business_name.required' => 'Nama usaha wajib diisi.',
+            'location_address.required' => 'Alamat tempat jualan wajib diisi.',
             'category_id.required' => 'Kategori wajib dipilih.',
             'image.image' => 'File harus berupa gambar.',
             'image.max' => 'Ukuran gambar maksimal 5MB.',

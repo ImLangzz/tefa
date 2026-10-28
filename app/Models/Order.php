@@ -18,7 +18,6 @@ class Order extends Model
         'buyer_id',
         'seller_id',
         'product_id',
-        'conversation_id',
         'quantity',
         'unit_price',
         'total_price',
@@ -43,10 +42,5 @@ class Order extends Model
     public function rating(): HasOne
     {
         return $this->hasOne(Rating::class);
-    }
-
-    public function conversation(): BelongsTo
-    {
-        return $this->belongsTo(Conversation::class);
     }
 }
