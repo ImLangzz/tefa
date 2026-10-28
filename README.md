@@ -52,20 +52,6 @@ php artisan db:seed --class=AdminSeeder
 Akun admin akan dibuat atau diperbarui dengan nilai tersebut. Jangan gunakan kata
 sandi contoh di lingkungan produksi. Sesi login menggunakan driver pada `SESSION_DRIVER`.
 
-## Deployment Vercel
-
-Deployment container menggunakan PostgreSQL. Di Vercel, tambahkan integrasi Neon
-Postgres dari Marketplace dan hubungkan ke environment Production agar Vercel
-menyediakan `DATABASE_URL`. Atur `DB_CONNECTION=pgsql` di environment Production;
-jangan gunakan `mysql` tanpa server MySQL. Image deployment sudah menyertakan driver
-PostgreSQL dan Laravel membaca `DATABASE_URL`.
-
-Sebelum aplikasi digunakan, jalankan migrasi Laravel satu kali terhadap database
-Neon dengan `php artisan migrate --force`. Untuk menjalankannya dari komputer lokal,
-atur sementara `DB_CONNECTION=pgsql` dan `DATABASE_URL` pada `.env` lokal ke database
-Production, lalu kembalikan `.env` lokal setelah migrasi. Jangan commit `.env` atau
-menggunakan `migrate:fresh` pada database Production.
-
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
