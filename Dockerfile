@@ -16,10 +16,9 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         libonig-dev \
         libpq-dev \
-        libxml2-dev \
         libzip-dev \
         unzip \
-    && docker-php-ext-install -j"$(nproc)" opcache pdo_pgsql xml zip \
+    && docker-php-ext-install -j"$(nproc)" opcache pdo_pgsql zip \
     && a2enmod rewrite headers \
     && rm -rf /var/lib/apt/lists/*
 
