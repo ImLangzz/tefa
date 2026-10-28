@@ -32,6 +32,7 @@ RUN chmod +x /usr/local/bin/start-apache \
 ENV APP_ENV=production \
     APP_DEBUG=false \
     LOG_CHANNEL=stderr \
+    DB_CONNECTION=pgsql \
     SESSION_DRIVER=database \
     CACHE_STORE=database
 
