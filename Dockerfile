@@ -14,13 +14,12 @@ FROM php:8.3-apache-bookworm
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        libcurl4-openssl-dev \
         libonig-dev \
         libpq-dev \
         libxml2-dev \
         libzip-dev \
         unzip \
-    && docker-php-ext-install -j"$(nproc)" curl mbstring opcache pdo_pgsql xml zip \
+    && docker-php-ext-install -j"$(nproc)" mbstring opcache pdo_pgsql xml zip \
     && a2enmod rewrite headers \
     && rm -rf /var/lib/apt/lists/*
 
