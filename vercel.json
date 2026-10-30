@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "buildCommand": "composer install --no-dev --optimize-autoloader && npm install && npm run build",
   "functions": {
     "api/index.php": {
       "runtime": "vercel-community/php@0.4.3"

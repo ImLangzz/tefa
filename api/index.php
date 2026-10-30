@@ -1,5 +1,6 @@
 <?php
 
+// Buat direktori penyimpanan sementara di /tmp Vercel
 $dirs = [
     '/tmp/storage/app/public',
     '/tmp/storage/framework/views',
@@ -15,11 +16,14 @@ foreach ($dirs as $dir) {
     }
 }
 
+// Alihkan lokasi cache dan view buatan Laravel ke folder /tmp
 putenv('APP_CONFIG_CACHE=/tmp/bootstrap/cache/config.php');
 putenv('APP_EVENTS_CACHE=/tmp/bootstrap/cache/events.php');
 putenv('APP_PACKAGES_CACHE=/tmp/bootstrap/cache/packages.php');
 putenv('APP_ROUTES_CACHE=/tmp/bootstrap/cache/routes.php');
 putenv('APP_SERVICES_CACHE=/tmp/bootstrap/cache/services.php');
 putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
+putenv('LOG_CHANNEL=stderr');
 
+// Jalankan aplikasi Laravel melalui public/index.php
 require __DIR__ . '/../public/index.php';
